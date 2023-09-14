@@ -4,7 +4,7 @@ import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import Navbar from './navbar';
 
-const Formation = () => {
+const FormationWidget = () => {
     const [data, setData] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
     const [sortBy, setSortBy] = useState('name');
@@ -16,13 +16,9 @@ const Formation = () => {
     const [date, setDate] = useState('');
     const [intervenant, setIntervenant] = useState('');
 
-
     useEffect(() => {
-        setDecoded(jwt_decode(localStorage.getItem('token')));
-        if (localStorage.getItem('token') === null) {
-            window.location.href = '/login';
-        }
-        else {
+        if (localStorage.getItem('token') !== null) {
+            setDecoded(jwt_decode(localStorage.getItem('token')));
             const token = localStorage.getItem('token');
             const decoded = jwt_decode(token);
             if (decoded.role === 'admin') {
@@ -39,7 +35,6 @@ const Formation = () => {
         } catch (error) {
             console.info("error", error);
         }
-
     }, []);
 
     const handleSort = (key) => {
@@ -115,10 +110,20 @@ const Formation = () => {
     }
 
     return (
-        <div>
-            <Navbar />
-            <h1>Formations</h1>
-            <div>
+        <div className="widget-container">
+                        <Navbar />
+            <div className="widget-header">
+                <h2>Formations</h2>
+                {isAdmin && (
+                    <Popup trigger={<button> Ajouter Une Formation</button>} position="bottom center">
+                        <input type="text" placeholder="Nom" onChange={(event) => setNom(event.target.value)} />
+                        <input type="text" placeholder="Date" onChange={(event) => setDate(event.target.value)} />
+                        <input type="text" placeholder="intervenant" onChange={(event) => setIntervenant(event.target.value)} />
+                        <button onClick={() => HandleAddFormation()}>Ajouter une formation</button>
+                    </Popup>
+                )}
+            </div>
+            <div className="widget-content">
                 <input
                     type="text"
                     placeholder="Rechercher par nom"
@@ -127,32 +132,20 @@ const Formation = () => {
                 />
                 <button onClick={() => handleSort('name')}>Trier par nom</button>
                 <button onClick={() => handleSort('date')}>Trier par date</button>
+                {sortedData.map((f1) => (
+                    <div className='card' key={f1.id}>
+                        <h3>{f1.name}</h3>
+                        <p>Date: {f1.date}</p>
+                        <p>Intervenant: {f1.instructor}</p>
+                        <Popup trigger={<button> Rejoindre la formation</button>} position="bottom center">
+                            <input type="text" placeholder="Motivation" onChange={(event) => setMotive(event.target.value)} />
+                            <button onClick={() => HandleInscription(f1.id)}>S'inscrire</button>
+                        </Popup>
+                    </div>
+                ))}
             </div>
-            {isAdmin &&
-                <div>
-                    <br />
-                    <Popup trigger={<button> Ajouter Une Formation</button>} position="bottom center">
-                        <input type="text" placeholder="Nom" onChange={(event) => setNom(event.target.value)} />
-                        <input type="text" placeholder="Date" onChange={(event) => setDate(event.target.value)} />
-                        <input type="text" placeholder="intervenant" onChange={(event) => setIntervenant(event.target.value)} />
-                        <button onClick={() => HandleAddFormation()}>Ajouter une formation</button>
-                    </Popup>
-                </div>
-            }
-
-            {sortedData.map((f1) => (
-                <div className='card' key={f1.id}>
-                    <h1>{f1.name}</h1>
-                    <p>{f1.date}</p>
-                    <p>{f1.instructor}</p>
-                    <Popup trigger={<button> Rejoindre la formation</button>} position="bottom center">
-                        <input type="text" placeholder="Motivation" onChange={(event) => setMotive(event.target.value)} />
-                        <button onClick={() => HandleInscription(f1.id)}>S'inscrire</button>
-                    </Popup>
-                </div>
-            ))}
         </div>
     );
 };
 
-export default Formation;
+export default FormationWidget;

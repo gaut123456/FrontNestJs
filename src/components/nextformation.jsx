@@ -18,26 +18,25 @@ const Nextformation = () => {
 
 
     useEffect(() => {
-        setDecoded(jwt_decode(localStorage.getItem('token')));
         if (localStorage.getItem('token') === null) {
             window.location.href = '/login';
         }
         else {
+            setDecoded(jwt_decode(localStorage.getItem('token')));
             const token = localStorage.getItem('token');
             const decoded = jwt_decode(token);
             if (decoded.role === 'admin') {
                 setIsAdmin(true);
             }
-        }
-
-        try {
-            fetch('http://localhost:3000/formation/retrieve')
-                .then(response => response.json())
-                .then(data => {
-                    setData(data);
-                });
-        } catch (error) {
-            console.info("error", error);
+            try {
+                fetch('http://localhost:3000/formation/retrieve')
+                    .then(response => response.json())
+                    .then(data => {
+                        setData(data);
+                    });
+            } catch (error) {
+                console.info("error", error);
+            }
         }
 
     }, []);
